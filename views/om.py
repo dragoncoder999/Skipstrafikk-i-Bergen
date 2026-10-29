@@ -27,7 +27,8 @@ st.markdown(
 3. **Andelen av motorkraften som brukes** regnes med propelloven:
    (fart / designfart)³. Andelen er aldri over 100 % og aldri under {num(em.MIN_LOAD * 100)} %.
 4. **Ligger skipet nesten stille**, under {num(em.STATIONARY_SPEED)} knop, regnes bare
-   hjelpemotorene med, med en fast effekt for hver skipstype og størrelse.
+   hjelpemotorene med, med en fast effekt for hver skipstype og størrelse. Unntaket er
+   cruiseskip, som regnes som tilkoblet landstrøm og uten utslipp når de ligger stille.
 5. **Drivstoff** regnes med {em.SFOC_MAIN} gram per kilowattime for hovedmotoren og
    {em.SFOC_AUX} gram for hjelpemotorene.
 6. **CO₂**: ett tonn drivstoff gir {num(em.CARBON_FACTOR, 3)} tonn CO₂. Det er faktoren for
@@ -121,9 +122,10 @@ Anslaget blir trolig **for høyt** fordi
 
 - mange ferjer og hurtigbåter rundt Bergen går helt eller delvis på batteri eller gass,
   mens vi regner alle som dieseldrevne
-- skip som ligger på landstrøm, regnes som om hjelpemotorene går. Bergen Havn har et stort
-  landstrømanlegg for cruiseskip, og fra 2026 skal alle cruiseskip bruke landstrøm når
-  de ligger til kai. Store cruiseskip ved kai får derfor alt for høye tall her.
+- skip som ligger på landstrøm, regnes som om hjelpemotorene går. Unntaket er cruiseskip:
+  Bergen Havn har et stort landstrømanlegg, og fra 2026 skal alle cruiseskip bruke
+  landstrøm når de ligger til kai. Cruiseskip som ligger stille, regnes derfor uten
+  utslipp. Det kan gi litt for lave tall for cruiseskip som ligger for anker.
 
 Anslaget blir trolig **for lavt** fordi
 

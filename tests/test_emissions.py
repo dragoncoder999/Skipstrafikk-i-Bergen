@@ -87,6 +87,19 @@ class ShipLookup(unittest.TestCase):
             self.assertEqual(lengths, sorted(lengths), category)
             self.assertEqual(lengths[-1], emissions.INF, category)
 
+    def test_cruise_ship_at_quay_uses_shore_power(self):
+        at_quay = emissions.estimate_ship("Passasjerskip", 250, 0)
+        self.assertTrue(at_quay.shore_power)
+        self.assertEqual(at_quay.co2_kg_per_h, 0)
+        sailing = emissions.estimate_ship("Passasjerskip", 250, 15)
+        self.assertFalse(sailing.shore_power)
+        self.assertGreater(sailing.co2_kg_per_h, 0)
+
+    def test_ferry_at_quay_still_counts_auxiliary_engines(self):
+        ferry = emissions.estimate_ship("Passasjerskip", 120, 0)
+        self.assertFalse(ferry.shore_power)
+        self.assertGreater(ferry.co2_kg_per_h, 0)
+
     def test_unknown_speed_gives_no_estimate(self):
         self.assertIsNone(emissions.estimate_ship("Lasteskip", 90, None))
         self.assertIsNone(emissions.estimate_ship("Lasteskip", 90, 102.3))

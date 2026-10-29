@@ -23,6 +23,16 @@ def _co2_text(kg_per_h):
     return f"{_num(kg_per_h)} kg/time"
 
 
+def _power_text(est):
+    if est is None:
+        return "ukjent"
+    if est.shore_power:
+        return "0 kW (antatt landstrøm ved kai)"
+    if est.main_kw == 0:
+        return f"{_num(est.power_kw)} kW (bare hjelpemotorer)"
+    return f"{_num(est.power_kw)} kW"
+
+
 def _with_display_fields(ship):
     """Add category, colour, emission estimate and formatted text for the map and info panel."""
     cat = ship_types.category(ship.get("shipType"))
@@ -43,11 +53,7 @@ def _with_display_fields(ship):
         "course_text": f"{course:.0f}°" if course_ok else "ukjent",
         "co2_kg_h": est.co2_kg_per_h if est else None,
         "co2_text": _co2_text(est.co2_kg_per_h if est else None),
-        "power_text": (
-            f"{_num(est.power_kw)} kW" + (" (bare hjelpemotorer)" if est.main_kw == 0 else "")
-            if est
-            else "ukjent"
-        ),
+        "power_text": _power_text(est),
         "fuel_text": f"{_num(est.fuel_kg_per_h)} kg/time" if est else "ukjent",
         "engine_source": emissions.engine_profile(cat, length).source,
     }

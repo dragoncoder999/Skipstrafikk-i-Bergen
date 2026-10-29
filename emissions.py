@@ -22,7 +22,9 @@ Simplifications worth knowing:
     - All fuel is treated as marine diesel. Battery ferries, LNG and hybrid
       ships (common around Bergen) are overestimated.
     - Ships on shore power at quay are overestimated, since we still count
-      auxiliary engines for them.
+      auxiliary engines for them. The exception is cruise ships: Bergen Havn
+      requires all cruise ships to use shore power at quay from 2026, so
+      cruise ships lying still are counted with no emissions.
     - Weather, current, hull fouling and loading condition are ignored.
     - The tables are averages for a type and size class. A single ship can be
       off by a factor of two or more; totals over many ships are more reliable
@@ -83,10 +85,13 @@ class EngineProfile:
     design_speed: float  # knots
     aux_kw: float
     source: str  # shown to users, so in Norwegian
+    shore_power: bool = False  # uses shore power instead of auxiliary engines when lying still
 
 
-def _imo(max_length, main_kw, design_speed, aux_kw, imo_class):
-    return EngineProfile(max_length, main_kw, design_speed, aux_kw, f"IMO GHG3: {imo_class}")
+def _imo(max_length, main_kw, design_speed, aux_kw, imo_class, shore_power=False):
+    return EngineProfile(
+        max_length, main_kw, design_speed, aux_kw, f"IMO GHG3: {imo_class}", shore_power
+    )
 
 
 def _own(main_kw, design_speed, aux_kw):
@@ -104,9 +109,10 @@ PROFILES = {
             _own(400, 12, 20),
             _imo(70, 1_510, 13.0, 100, "Ferry-RoPax 0–1999 GT"),
             _imo(200, 15_490, 21.6, 710, "Ferry-RoPax 2000+ GT"),
-            _imo(230, 19_660, 19.9, 4_800, "Cruise 10000–59999 GT"),
-            _imo(290, 53_290, 22.2, 13_560, "Cruise 60000–99999 GT"),
-            _imo(INF, 76_120, 22.7, 13_250, "Cruise 100000+ GT"),
+            # Cruise ships: shore power at quay, required in Bergen from 2026
+            _imo(230, 19_660, 19.9, 4_800, "Cruise 10000–59999 GT", shore_power=True),
+            _imo(290, 53_290, 22.2, 13_560, "Cruise 60000–99999 GT", shore_power=True),
+            _imo(INF, 76_120, 22.7, 13_250, "Cruise 100000+ GT", shore_power=True),
         ],
     },
     "Hurtigbåt": {  # fast passenger catamarans
@@ -191,6 +197,7 @@ class Estimate:
     aux_kw: float  # auxiliary engine power in use
     fuel_kg_per_h: float
     co2_kg_per_h: float
+    shore_power: bool = False  # lying still on shore power, so no emissions
 
     @property
     def power_kw(self):
@@ -237,9 +244,12 @@ def estimate_ship(category, length, speed):
     if speed is None or speed >= SPEED_NOT_AVAILABLE:
         return None
     row = engine_profile(category, length)
-    return estimate_from_power(
+    on_shore_power = row.shore_power and speed < STATIONARY_SPEED
+    est = estimate_from_power(
         installed_kw=row.main_kw,
         design_speed=row.design_speed,
         speed=speed,
-        aux_kw=row.aux_kw,
+        aux_kw=0 if on_shore_power else row.aux_kw,
     )
+    est.shore_power = on_shore_power
+    return est
