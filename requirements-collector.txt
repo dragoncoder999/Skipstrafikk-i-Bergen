@@ -1,0 +1,5 @@
+# Packages needed by collector.py (used by the GitHub Actions job)
+requests>=2.31
+certifi
+python-dotenv>=1.0
+turso_serverless==0.1.0
