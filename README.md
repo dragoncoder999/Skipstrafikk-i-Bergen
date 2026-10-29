@@ -68,6 +68,7 @@ Gratisversjonen av Render sletter lokale filer hver gang tjenesten starter på n
 | `app.py` | Startpunkt, navigasjon og sidepanel |
 | `views/kart.py` | Kart i sanntid med varmekart |
 | `views/utslipp.py` | Utslipp per time og døgn |
+| `views/om.py` | Forklaring av beregningen, forutsetninger og usikkerhet |
 | `settings.py` | Område, intervaller og andre innstillinger |
 | `ais_client.py` | Innlogging og henting fra BarentsWatch |
 | `ship_types.py` | Gruppering av AIS-skipstyper |

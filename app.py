@@ -16,6 +16,7 @@ st.set_page_config(page_title="Skipstrafikk i Bergen", page_icon="🚢", layout=
 page = st.navigation([
     st.Page("views/kart.py", title="Kart", icon="🗺️", default=True),
     st.Page("views/utslipp.py", title="Utslipp over tid", icon="📊"),
+    st.Page("views/om.py", title="Om beregningen", icon="ℹ️"),
 ])
 
 # Widgets live here so their values are kept when switching pages.
